@@ -18,85 +18,22 @@ https://www.jair.org/index.php/jair/article/view/11673).
 Journal of Artificial Intelligence Research 67, pp. 129-167. 2020.
 
 
-## Instructions
+## IPC 2023 version
 
-Install the dependencies (the table below lists which versions are tested):
+The instructions in this document are for the Scorpion 2023 planner which
+participated in the [IPC 2023](https://ipc2023-classical.github.io/). You can
+find the latest Scorpion planning system at
+https://github.com/jendrikseipp/scorpion.
 
-    sudo apt install cmake g++ git make python3
+The recommended way to run Scorpion 2023 is via the
+[Apptainer](https://apptainer.org/) image:
 
-For plugins based on linear programming (e.g., `ocp()`, `pho()`) you need
-to [add an LP solver](https://www.fast-downward.org/LPBuildInstructions). Then
-compile the planner with
+    apptainer build scorpion_2023.sif Apptainer.scorpion_2023
+    ./scorpion_2023.sif DOMAIN_FILE PROBLEM_FILE PLAN_FILE
 
-    ./build.py
-
-and see the available options with
-
-    ./fast-downward.py --help  # driver
-    ./fast-downward.py --search -- --help  # search component
-
-For more details (including build instructions for macOS and Windows), see the
-documentation about
-[compiling](https://www.fast-downward.org/ObtainingAndRunningFastDownward)
-and [running](https://www.fast-downward.org/PlannerUsage) the planner. The
-[plugin documentation](https://jendrikseipp.github.io/scorpion) shows
-which plugins are available (heuristics, search algorithms, etc.) and how
-to use them.
-
-
-### Recommended configuration
-
-We recommend using the following configuration:
-
-```
-./fast-downward.py \
-  --transform-task preprocess-h2 \
-  ../benchmarks/gripper/prob01.pddl \
-  --search "astar(scp_online([
-        projections(sys_scp(max_time=100, max_time_per_restart=10)),
-        cartesian()],
-        saturator=perimstar, max_time=1000, interval=10K, orders=greedy_orders()),
-        pruning=limited_pruning(pruning=atom_centric_stubborn_sets(), min_required_pruning_ratio=0.2))"
-```
-
-The `preprocess-h2` call prunes irrelevant operators in a preprocessing
-step. The search configuration uses [partial order
-reduction](https://ojs.aaai.org/index.php/SOCS/article/view/18535) and
-maximizes over
-[diverse](https://www.jair.org/index.php/jair/article/view/11673),
-[subset-saturated](https://ojs.aaai.org/index.php/ICAPS/article/view/3503)
-cost partitioning heuristics computed
-[online](https://ojs.aaai.org/index.php/ICAPS/article/view/15976/) during
-the search. The underlying abstractions are [Sys-SCP pattern
-databases](https://www.ijcai.org/proceedings/2019/780) and [Cartesian
-abstractions](https://jair.org/index.php/jair/article/view/11217).
-
-(In [Downward Lab](https://lab.readthedocs.io/) you can use
-`add_algorithm(name="scorpion", repo="path/to/repo", rev="scorpion",
-component_options=[], driver_options=["--transform-task", "preprocess-h2",
-"--alias", "scorpion"]` to run the recommended Scorpion configuration.)
-
-#### Apptainer image
-
-To simplify the installation process, we provide an executable
-[Apptainer](https://apptainer.org/) container (formerly known as Singularity).
-It accepts the same arguments as the `fast-downward.py` script (see above).
-
-    # Download the image,
-    apptainer pull scorpion.sif oras://ghcr.io/jendrikseipp/scorpion:latest
-
-    # or build it yourself.
-    apptainer build scorpion.sif Apptainer
-
-    # Then run recommended configuration (available via "scorpion" alias).
-    ./scorpion.sif --transform-task preprocess-h2 --alias scorpion PROBLEM_FILE
-
-### IPC 2018 version
-
-If you prefer to run the Scorpion version from IPC 2018 (which uses an
-older Fast Downward version and different abstractions), we recommend
-using the [Scorpion IPC
-repo](https://bitbucket.org/ipc2018-classical/team44/src/ipc-2018-seq-opt/).
+In [seq_opt_scorpion_2023.py](driver/portfolios/seq_opt_scorpion_2023.py) you
+can find the configurations that Scorpion 2023 uses, depending on the features
+of the input task.
 
 
 ## Differences between Scorpion and Fast Downward
